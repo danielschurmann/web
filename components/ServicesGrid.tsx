@@ -1,23 +1,31 @@
+"use client";
+
+import { trackServiceClick } from "@/lib/analytics";
+
 const services = [
   {
     title: "Impuestos",
     description: "Nacionales, provinciales y municipales",
     href: "#contacto",
+    id: "impuestos",
   },
   {
     title: "Sueldos y cargas sociales",
     description: "Liquidaciones y DDJJ",
     href: "#contacto",
+    id: "sueldos",
   },
   {
     title: "Auditorías",
     description: "Contables y financieras",
     href: "#contacto",
+    id: "auditorias",
   },
   {
     title: "Automatización de procesos",
     description: "Contable, económica y financiera",
     href: "#ai",
+    id: "automatizacion",
   },
 ];
 
@@ -42,6 +50,7 @@ export function ServicesGrid() {
               </div>
               <a
                 href={service.href}
+                onClick={() => trackServiceClick(service.id)}
                 className="mt-4 inline-block min-h-11 text-sm font-semibold text-accent"
               >
                 Ver servicio →

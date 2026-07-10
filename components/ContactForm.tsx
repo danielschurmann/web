@@ -1,10 +1,16 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useRef } from "react";
 import {
   submitLead,
   type SubmitLeadState,
 } from "@/app/actions";
+import {
+  trackContactSubmit,
+  trackFormStart,
+  trackFormSubmitAttempt,
+  trackWhatsappClick,
+} from "@/lib/analytics";
 import { whatsappUrl } from "@/lib/site";
 import { IconWhatsapp } from "./Icons";
 
@@ -15,6 +21,21 @@ const initialState: SubmitLeadState = {
 
 export function ContactForm() {
   const [state, formAction, pending] = useActionState(submitLead, initialState);
+  const trackedLead = useRef(false);
+  const trackedStart = useRef(false);
+
+  useEffect(() => {
+    if (state.ok && !trackedLead.current) {
+      trackedLead.current = true;
+      trackContactSubmit("landing_form");
+    }
+  }, [state.ok]);
+
+  function handleFormStart() {
+    if (trackedStart.current) return;
+    trackedStart.current = true;
+    trackFormStart("landing_form");
+  }
 
   return (
     <div>
@@ -27,7 +48,11 @@ export function ContactForm() {
           {state.message}
         </div>
       ) : (
-        <form action={formAction} className="flex flex-col gap-2.5">
+        <form
+          action={formAction}
+          onSubmit={() => trackFormSubmitAttempt("landing_form")}
+          className="flex flex-col gap-2.5"
+        >
           <div>
             <label htmlFor="nombre" className="sr-only">
               Nombre
@@ -38,6 +63,7 @@ export function ContactForm() {
               required
               autoComplete="name"
               placeholder="Nombre"
+              onFocus={handleFormStart}
               className="w-full rounded-[10px] border border-border-input bg-white px-3.5 py-3 text-sm text-ink outline-none focus:border-accent"
             />
             {state.fieldErrors?.nombre ? (
@@ -56,6 +82,7 @@ export function ContactForm() {
               required
               autoComplete="email"
               placeholder="Email o WhatsApp"
+              onFocus={handleFormStart}
               className="w-full rounded-[10px] border border-border-input bg-white px-3.5 py-3 text-sm text-ink outline-none focus:border-accent"
             />
             {state.fieldErrors?.contacto ? (
@@ -73,6 +100,7 @@ export function ContactForm() {
               name="mensaje"
               rows={3}
               placeholder="¿En qué te podemos ayudar? (opcional)"
+              onFocus={handleFormStart}
               className="w-full resize-y rounded-[10px] border border-border-input bg-white px-3.5 py-3 text-sm text-ink outline-none focus:border-accent"
             />
           </div>
@@ -93,9 +121,10 @@ export function ContactForm() {
         href={whatsappUrl()}
         target="_blank"
         rel="noopener noreferrer"
-        className="mt-2.5 inline-flex min-h-11 w-full items-center justify-center gap-2.5 rounded-[11px] bg-whatsapp px-4 py-3.5 text-[15px] font-semibold text-white"
+        onClick={() => trackWhatsappClick("contact_section")}
+        className="mt-2.5 inline-flex min-h-11 w-full items-center justify-center gap-2.5 rounded-[11px] bg-whatsapp px-4 py-3.5 text-[15px] font-semibold !text-white hover:opacity-95"
       >
-        <IconWhatsapp size={18} />
+        <IconWhatsapp size={18} className="text-white" />
         Escribinos por WhatsApp
       </a>
     </div>

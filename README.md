@@ -36,3 +36,16 @@ O ejecutar el SQL de `supabase/migrations/20260710120000_leads.sql` en el SQL Ed
 5. Prod: `vercel --prod`
 
 Root Directory del proyecto en Vercel: `web` (si se linkea desde el monorepo root, usar `vercel link --repo` y setear Root Directory).
+
+## Documentación
+
+- [docs/AGENT_API.md](docs/AGENT_API.md) — doc viva para agentes Claude/GPT
+- [docs/GMAIL_SMTP.md](docs/GMAIL_SMTP.md) — magic link con Gmail SMTP
+- [DEPLOY.md](DEPLOY.md) — checklist de deploy
+
+## Backoffice
+
+- `/admin/login` — magic link (principal) o email/password
+- `/admin/notes` — notas
+- `/admin/leads` — consultas del formulario
+- `/admin/keys` — API keys para agentes

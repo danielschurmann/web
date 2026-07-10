@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import { GoogleAnalytics } from "@next/third-parties/google";
 import { Manrope, Newsreader, Space_Grotesk } from "next/font/google";
+import { GA_MEASUREMENT_ID } from "@/lib/analytics";
 import { siteConfig } from "@/lib/site";
 import "./globals.css";
 
@@ -88,6 +90,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
         {children}
+        <GoogleAnalytics gaId={GA_MEASUREMENT_ID} />
       </body>
     </html>
   );

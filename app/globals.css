@@ -55,12 +55,7 @@ body {
 }
 
 a {
-  color: inherit;
   text-decoration: none;
-}
-
-a:hover {
-  opacity: 0.88;
 }
 
 input::placeholder,

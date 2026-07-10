@@ -1,8 +1,8 @@
 "use server";
 
 import { z } from "zod";
-import { notifyLeadEmail } from "@/lib/resend";
-import { getSupabaseAdmin } from "@/lib/supabase";
+import { notifyLeadEmail } from "@/lib/email";
+import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
 const leadSchema = z.object({
   nombre: z.string().trim().min(2, "Ingresá tu nombre.").max(120),

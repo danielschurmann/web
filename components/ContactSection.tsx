@@ -1,24 +1,16 @@
+"use client";
+
+import { trackNewsClick } from "@/lib/analytics";
 import { ContactForm } from "./ContactForm";
 
-const news = [
-  {
-    date: "Junio 2026",
-    title: "Guía: régimen simplificado de ganancias 2026",
-    href: "#novedades",
-  },
-  {
-    date: "Mayo 2026",
-    title: "Cómo preparar tu empresa para una auditoría",
-    href: "#novedades",
-  },
-  {
-    date: "Abril 2026",
-    title: "Sucesión de empresa familiar: por dónde empezar",
-    href: "#novedades",
-  },
-];
+export type HomeNewsItem = {
+  id: string;
+  date: string;
+  title: string;
+  href: string;
+};
 
-export function ContactSection() {
+export function ContactSection({ news }: { news: HomeNewsItem[] }) {
   return (
     <section
       id="contacto"
@@ -47,17 +39,29 @@ export function ContactSection() {
             Novedades
           </div>
           <div className="flex flex-col gap-3.5">
-            {news.map((item) => (
-              <a key={item.title} href={item.href} className="block">
-                <div className="text-xs text-fainter">{item.date}</div>
-                <div className="text-[15px] leading-[1.4] font-semibold text-ink">
-                  {item.title}
-                </div>
-              </a>
-            ))}
+            {news.length === 0 ? (
+              <p className="text-[14.5px] text-muted">
+                Pronto vamos a publicar novedades fiscales y contables.
+              </p>
+            ) : (
+              news.map((item) => (
+                <a
+                  key={item.id}
+                  href={item.href}
+                  onClick={() => trackNewsClick(item.id)}
+                  className="block"
+                >
+                  <div className="text-xs text-fainter capitalize">{item.date}</div>
+                  <div className="text-[15px] leading-[1.4] font-semibold text-ink">
+                    {item.title}
+                  </div>
+                </a>
+              ))
+            )}
           </div>
           <a
-            href="#novedades"
+            href="/novedades"
+            onClick={() => trackNewsClick("ver_todas")}
             className="mt-4 inline-block min-h-11 text-sm font-semibold text-accent"
           >
             Ver todas →

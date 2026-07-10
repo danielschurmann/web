@@ -12,6 +12,13 @@ create index if not exists leads_created_at_idx on public.leads (created_at desc
 
 alter table public.leads enable row level security;
 
--- No public policies: inserts go through the service role from the Next.js server action.
+drop policy if exists "Allow public insert leads" on public.leads;
+create policy "Allow public insert leads"
+  on public.leads
+  for insert
+  to anon, authenticated
+  with check (true);
+
 revoke all on table public.leads from anon, authenticated;
+grant insert on table public.leads to anon, authenticated;
 grant select, insert, update, delete on table public.leads to service_role;

@@ -1,3 +1,6 @@
+"use client";
+
+import { trackCtaClick } from "@/lib/analytics";
 import { AiDemo } from "./AiDemo";
 
 const bullets = [
@@ -34,6 +37,7 @@ export function AiPillar() {
           </div>
           <a
             href="#contacto"
+            onClick={() => trackCtaClick("conocer_casos_uso", "ai_pillar")}
             className="inline-flex min-h-11 items-center rounded-[11px] bg-accent px-[22px] py-3.5 text-[15px] font-semibold text-white"
           >
             Conocé los casos de uso →

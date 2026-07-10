@@ -1,19 +1,23 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { trackAiDemoAsk } from "@/lib/analytics";
 
 type Message = { role: "assistant" | "user"; text: string };
 
 const QA = [
   {
+    id: "iva_vencimiento",
     q: "¿Cuándo vence el IVA este mes?",
     a: "El vencimiento del IVA se ordena por la terminación de tu CUIT. Con tu número armo el calendario del período y te aviso 3 días antes de cada vencimiento. ¿Querés que lo configuremos?",
   },
   {
+    id: "monotributo_vs_ri",
     q: "¿Conviene monotributo o responsable inscripto?",
     a: "Depende de tu facturación anual proyectada, el rubro y tus compras con crédito fiscal. Con tus números te calculo el punto exacto donde deja de convenir el monotributo.",
   },
   {
+    id: "gastos_deducibles",
     q: "¿Qué gastos de mi pyme puedo deducir?",
     a: "Se deduce todo gasto necesario para generar la renta: sueldos, alquiler, servicios, honorarios y amortizaciones. Los rodados y ciertos gastos tienen tope. Reviso tus comprobantes y te marco cuáles computar.",
   },
@@ -50,6 +54,7 @@ export function AiDemo() {
     if (busyRef.current) return;
     busyRef.current = true;
     const qa = QA[index];
+    trackAiDemoAsk(qa.id);
     setMessages((prev) => [...prev, { role: "user", text: qa.q }]);
     setTyping(true);
 

@@ -1,4 +1,7 @@
+"use client";
+
 import { whatsappUrl } from "@/lib/site";
+import { trackCtaClick, trackWhatsappClick } from "@/lib/analytics";
 import { IconWhatsapp } from "./Icons";
 
 export function Hero() {
@@ -21,13 +24,15 @@ export function Hero() {
             href={whatsappUrl()}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex min-h-11 items-center gap-2.5 rounded-xl bg-whatsapp px-6 py-3.5 text-[15px] font-semibold text-white shadow-[0_8px_22px_-10px_rgba(31,168,85,0.7)]"
+            onClick={() => trackWhatsappClick("hero")}
+            className="inline-flex min-h-11 items-center gap-2.5 rounded-xl bg-whatsapp px-6 py-3.5 text-[15px] font-semibold !text-white shadow-[0_8px_22px_-10px_rgba(31,168,85,0.7)] hover:opacity-95"
           >
-            <IconWhatsapp />
+            <IconWhatsapp className="text-white" />
             Escribinos por WhatsApp
           </a>
           <a
             href="#contacto"
+            onClick={() => trackCtaClick("agendar_reunion", "hero")}
             className="inline-flex min-h-11 items-center rounded-xl border border-border-input bg-white px-6 py-3.5 text-[15px] font-semibold text-ink"
           >
             Agendá una reunión sin cargo

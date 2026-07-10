@@ -1,3 +1,6 @@
+"use client";
+
+import { trackSituationClick } from "@/lib/analytics";
 import {
   IconBuilding,
   IconDocument,
@@ -12,6 +15,7 @@ const situations = [
     subtitle: "Facturación, impuestos y sueldos",
     icon: IconDocument,
     featured: false,
+    id: "monotributista_pyme",
   },
   {
     href: "#servicios",
@@ -19,6 +23,7 @@ const situations = [
     subtitle: "Crisis y sucesiones familiares",
     icon: IconTarget,
     featured: false,
+    id: "momento_critico",
   },
   {
     href: "#servicios",
@@ -26,6 +31,7 @@ const situations = [
     subtitle: "Argentinos en el exterior y extranjeros en el país",
     icon: IconBuilding,
     featured: false,
+    id: "inmueble",
   },
   {
     href: "#ai",
@@ -33,6 +39,7 @@ const situations = [
     subtitle: "Agentes de AI a medida",
     icon: IconRobot,
     featured: true,
+    id: "automatizar_ai",
   },
 ];
 
@@ -55,6 +62,9 @@ export function SituationSelector() {
               <a
                 key={item.title}
                 href={item.href}
+                onClick={() =>
+                  trackSituationClick(item.id, item.href.replace("#", ""))
+                }
                 className={
                   item.featured
                     ? "relative flex min-h-11 flex-col gap-3 rounded-[14px] border-[1.5px] border-accent bg-accent/5 p-[26px]"
