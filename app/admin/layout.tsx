@@ -1,21 +1,25 @@
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
-
-const nav = [
-  { href: "/admin/notes", label: "Notas" },
-  { href: "/admin/leads", label: "Consultas" },
-  { href: "/admin/keys", label: "API keys" },
-];
+import { getCurrentProfile } from "@/lib/current-user";
 
 export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const profile = await getCurrentProfile();
+  const user = profile;
+  const isSuperadmin = profile?.role === "superadmin";
+
+  const nav = [
+    { href: "/admin/notes", label: "Notas" },
+    { href: "/admin/leads", label: "Consultas" },
+    ...(isSuperadmin
+      ? [
+          { href: "/admin/users", label: "Usuarios" },
+          { href: "/admin/keys", label: "API keys" },
+        ]
+      : []),
+  ];
 
   return (
     <div className="min-h-screen bg-page text-ink">

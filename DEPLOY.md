@@ -40,10 +40,24 @@
    - Opción B) Resend: crear API key en https://resend.com y agregar
      `RESEND_API_KEY`, `RESEND_FROM_EMAIL` y `CONTACT_NOTIFY_EMAIL` en Vercel.
 
-3. **Service role key** (recomendado):
+3. **Service role key** (necesaria para invitar/eliminar usuarios en
+   `/admin/users`; recomendada además para endurecer RLS):
    - Dashboard Supabase → Project Settings → API → `service_role`
    - `vercel env add SUPABASE_SERVICE_ROLE_KEY production --sensitive --yes --scope estudio-ds-y-asoc`
-   - Luego se puede endurecer RLS quitando el insert público
+   - Sin esta variable, el resto del backoffice funciona y un superadmin igual
+     puede **cambiar roles**; solo quedan deshabilitados el alta y la baja de
+     usuarios (que usan la Auth Admin API).
+
+### Roles del backoffice
+
+- `superadmin` (Daniel, Gabriel): administran usuarios + todo el backoffice.
+- `editor` (Alejandra, Sebastián): ven consultas y crean/editan notas.
+- `admin`: rol heredado con acceso total salvo gestión de usuarios.
+- `client`: sin acceso al backoffice.
+
+Un usuario nuevo puede entrar de dos formas: invitándolo desde `/admin/users`
+(le llega un email) o, si ya existe, con el link mágico del login. El rol se
+asigna al invitar y luego se puede cambiar desde la misma sección.
 
 4. **Dominio** `estudiodsyasoc.com.ar`:
    ```bash

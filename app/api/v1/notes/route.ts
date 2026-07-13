@@ -9,7 +9,9 @@ const createSchema = z.object({
   excerpt: z.string().max(500).optional(),
   source_url: z.string().url().optional().nullable(),
   status: z.enum(["draft", "published"]).default("draft"),
-  author_slug: z.enum(["daniel", "alejandra", "gabriel"]).optional(),
+  author_slug: z
+    .enum(["daniel", "alejandra", "gabriel", "sebastian"])
+    .optional(),
   tags: z.array(z.string()).optional(),
   seo_title: z.string().optional(),
   seo_description: z.string().optional(),

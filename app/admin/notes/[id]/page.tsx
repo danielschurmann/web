@@ -1,15 +1,13 @@
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
+import { requireStaff } from "@/lib/current-user";
 import { createClient } from "@/lib/supabase/server";
 import { NoteEditor } from "../NoteEditor";
 
 type Props = { params: Promise<{ id: string }> };
 
 export default async function EditNotePage({ params }: Props) {
+  await requireStaff();
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/admin/login");
 
   const { id } = await params;
   const { data: post } = await supabase

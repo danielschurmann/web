@@ -5,7 +5,7 @@ export type ApiActor = {
   userId: string;
   email: string;
   fullName: string;
-  role: "admin" | "editor" | "client";
+  role: "superadmin" | "admin" | "editor" | "client";
   slug: string | null;
   scopes: string[];
   via: "api_key" | "session";
@@ -90,12 +90,21 @@ export async function authenticateRequest(
 
   if (!profile) return null;
 
+  const base = [
+    "notes:write",
+    "notes:publish",
+    "notes:read",
+    "leads:read",
+    "keys:manage",
+  ];
   const scopes =
-    profile.role === "admin"
-      ? ["notes:write", "notes:publish", "notes:read", "leads:read", "keys:manage"]
-      : profile.role === "editor"
-        ? ["notes:write", "notes:read"]
-        : ["notes:read"];
+    profile.role === "superadmin"
+      ? [...base, "users:manage"]
+      : profile.role === "admin"
+        ? base
+        : profile.role === "editor"
+          ? ["notes:write", "notes:publish", "notes:read", "leads:read"]
+          : ["notes:read"];
 
   return {
     userId: profile.id,
@@ -109,7 +118,24 @@ export async function authenticateRequest(
 }
 
 export function requireScope(actor: ApiActor, scope: string) {
-  return actor.scopes.includes(scope) || actor.role === "admin";
+  return (
+    actor.scopes.includes(scope) ||
+    actor.role === "admin" ||
+    actor.role === "superadmin"
+  );
+}
+
+export function isSuperadmin(actor: ApiActor) {
+  return actor.role === "superadmin";
+}
+
+/** Puede operar en el backoffice (ver consultas, crear/editar notas). */
+export function isStaff(actor: ApiActor) {
+  return (
+    actor.role === "superadmin" ||
+    actor.role === "admin" ||
+    actor.role === "editor"
+  );
 }
 
 export function slugify(input: string) {

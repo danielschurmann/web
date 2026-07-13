@@ -1,12 +1,9 @@
-import { redirect } from "next/navigation";
+import { requireStaff } from "@/lib/current-user";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function AdminLeadsPage() {
+  await requireStaff();
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/admin/login");
 
   const { data: leads } = await supabase
     .from("leads")

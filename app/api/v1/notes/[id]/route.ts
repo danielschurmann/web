@@ -67,7 +67,7 @@ export async function PATCH(request: Request, { params }: Params) {
 
 export async function DELETE(request: Request, { params }: Params) {
   const actor = await authenticateRequest(request);
-  if (!actor || actor.role !== "admin") {
+  if (!actor || (actor.role !== "admin" && actor.role !== "superadmin")) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

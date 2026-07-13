@@ -1,13 +1,10 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
+import { requireStaff } from "@/lib/current-user";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function AdminNotesPage() {
+  await requireStaff();
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/admin/login");
 
   const { data: posts } = await supabase
     .from("posts")
