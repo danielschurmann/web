@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
 export default function AdminLoginPage() {
@@ -10,6 +10,20 @@ export default function AdminLoginPage() {
   const [mode, setMode] = useState<"magic" | "password">("magic");
   const [status, setStatus] = useState<string>("");
   const [pending, setPending] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const err = params.get("error");
+    if (err) {
+      setStatus(
+        err === "auth"
+          ? "No pudimos validar el link. Pedí uno nuevo y abrilo en este mismo navegador."
+          : err,
+      );
+      // Limpia el error de la URL para que no quede pegado.
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+  }, []);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
