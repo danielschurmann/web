@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { authenticateRequest, requireScope } from "@/lib/api-auth";
-import { getSupabaseAdmin } from "@/lib/supabase-admin";
+import { ApiDataError, listLeads } from "@/lib/api-data";
 
 export async function GET(request: Request) {
   const actor = await authenticateRequest(request);
@@ -8,16 +8,13 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const supabase = getSupabaseAdmin();
-  const { data, error } = await supabase
-    .from("leads")
-    .select("id, nombre, contacto, mensaje, source, created_at")
-    .order("created_at", { ascending: false })
-    .limit(100);
-
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  try {
+    const data = await listLeads(actor);
+    return NextResponse.json({ data });
+  } catch (err) {
+    if (err instanceof ApiDataError) {
+      return NextResponse.json({ error: err.message }, { status: err.status });
+    }
+    throw err;
   }
-
-  return NextResponse.json({ data });
 }

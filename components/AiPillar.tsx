@@ -4,8 +4,8 @@ import { trackCtaClick } from "@/lib/analytics";
 import { AiDemo } from "./AiDemo";
 
 const bullets = [
-  "Conciliación bancaria automática",
-  "Reportes de gestión en lenguaje natural",
+  "Apoyo en la conciliación bancaria",
+  "Detección de inconsistencias en tus registros",
   "Alertas de vencimientos impositivos",
 ];
 
@@ -18,11 +18,12 @@ export function AiPillar() {
             Pilar AI
           </div>
           <h2 className="mt-3 mb-4 font-display text-[clamp(28px,4vw,38px)] font-semibold leading-[1.1] tracking-[-0.02em] text-white">
-            Agentes de AI para tu empresa
+            Tecnología e IA al servicio de tu contabilidad
           </h2>
           <p className="mb-5 text-[17px] leading-[1.6] text-[#9fb0bf]">
-            Diseñamos e implementamos agentes internos que automatizan flujos
-            contables y financieros: conciliaciones, reportes y cobranzas.
+            Usamos tecnología e IA para detectar inconsistencias y agilizar
+            flujos contables y financieros. La revisión final siempre queda en
+            manos de nuestro equipo.
           </p>
           <div className="mb-[26px] flex flex-col gap-2.5">
             {bullets.map((bullet) => (

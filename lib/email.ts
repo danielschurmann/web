@@ -73,7 +73,7 @@ export async function notifyLeadEmail(input: {
   const subject = `Nuevo lead: ${input.nombre}`;
   const text = [
     `Nombre: ${input.nombre}`,
-    `Contacto: ${input.contacto}`,
+    `Email: ${input.contacto}`,
     `Mensaje: ${input.mensaje?.trim() || "(sin mensaje)"}`,
     `Origen: landing`,
   ].join("\n");

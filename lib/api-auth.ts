@@ -1,5 +1,5 @@
 import { createHash, randomBytes } from "crypto";
-import { getSupabaseAdmin } from "@/lib/supabase-admin";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 export type ApiActor = {
   userId: string;
@@ -10,7 +10,23 @@ export type ApiActor = {
   scopes: string[];
   via: "api_key" | "session";
   apiKeyId?: string;
+  /** Raw bearer key, present only for api_key actors. Used to call the SECURITY DEFINER RPCs. */
+  apiKey?: string;
 };
+
+/**
+ * Client for the api-keys management routes only.
+ * The agent notes/leads API no longer uses this — it goes through SECURITY
+ * DEFINER RPCs (see lib/api-data.ts) so it does not depend on the service role.
+ */
+export async function getDbForActor(actor: ApiActor): Promise<SupabaseClient> {
+  if (actor.via === "session") {
+    const { createClient } = await import("@/lib/supabase/server");
+    return createClient();
+  }
+  const { getSupabaseAdmin } = await import("@/lib/supabase-admin");
+  return getSupabaseAdmin();
+}
 
 export function hashApiKey(raw: string) {
   return createHash("sha256").update(raw).digest("hex");
@@ -32,33 +48,29 @@ export async function authenticateRequest(
   const bearer = auth.startsWith("Bearer ") ? auth.slice(7).trim() : "";
 
   if (bearer.startsWith("dsa_")) {
-    const supabase = getSupabaseAdmin();
+    // Lookup via security definer RPC so auth works even if service_role env is wrong.
+    const { getSupabasePublic } = await import("@/lib/supabase-public");
+    const supabase = getSupabasePublic();
     const hash = hashApiKey(bearer);
-    const { data: key } = await supabase
-      .from("api_keys")
-      .select("id, user_id, scopes, revoked_at, profiles(id, email, full_name, role, slug)")
-      .eq("key_hash", hash)
-      .maybeSingle();
+    const { data: rows } = await supabase.rpc("lookup_api_key_by_hash", {
+      p_hash: hash,
+    });
+    const key = Array.isArray(rows) ? rows[0] : rows;
 
     if (!key || key.revoked_at) return null;
 
-    const profile = Array.isArray(key.profiles) ? key.profiles[0] : key.profiles;
-    if (!profile) return null;
-
-    await supabase
-      .from("api_keys")
-      .update({ last_used_at: new Date().toISOString() })
-      .eq("id", key.id);
+    void supabase.rpc("touch_api_key_last_used", { p_id: key.id });
 
     return {
-      userId: profile.id,
-      email: profile.email,
-      fullName: profile.full_name,
-      role: profile.role,
-      slug: profile.slug,
+      userId: key.profile_id,
+      email: key.email,
+      fullName: key.full_name,
+      role: key.role,
+      slug: key.slug,
       scopes: key.scopes ?? [],
       via: "api_key",
       apiKeyId: key.id,
+      apiKey: bearer,
     };
   }
 

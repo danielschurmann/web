@@ -1,11 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import {
-  authenticateRequest,
-  requireScope,
-  slugify,
-} from "@/lib/api-auth";
-import { getSupabaseAdmin } from "@/lib/supabase-admin";
+import { authenticateRequest, requireScope } from "@/lib/api-auth";
+import { ApiDataError, createNote } from "@/lib/api-data";
 
 const schema = z.object({
   url: z.string().url(),
@@ -121,56 +117,24 @@ export async function POST(request: Request) {
     excerpt: input.excerpt,
   });
 
-  const supabase = getSupabaseAdmin();
-  const { data: author } = await supabase
-    .from("profiles")
-    .select("id, full_name, slug")
-    .eq("slug", input.author)
-    .maybeSingle();
-
-  if (!author) {
-    return NextResponse.json(
-      {
-        error: `Author "${input.author}" not found. Create the profile first (daniel / alejandra).`,
-      },
-      { status: 400 },
-    );
-  }
-
-  const baseSlug = slugify(draft.title);
-  let slug = baseSlug;
-  for (let i = 0; i < 5; i++) {
-    const { data: existing } = await supabase
-      .from("posts")
-      .select("id")
-      .eq("slug", slug)
-      .maybeSingle();
-    if (!existing) break;
-    slug = `${baseSlug}-${i + 2}`;
-  }
-
-  const { data, error } = await supabase
-    .from("posts")
-    .insert({
-      author_id: author.id,
+  let data: { id: string; slug: string; status: string };
+  try {
+    data = (await createNote(actor, {
       title: draft.title,
-      slug,
-      excerpt: draft.excerpt,
       body_md: draft.body_md,
+      excerpt: draft.excerpt,
       source_url: input.url,
       status: input.status,
-      created_via: "agent",
+      author_slug: input.author,
+      tags: input.tags ?? ["novedades", "impuestos"],
       seo_title: draft.title,
       seo_description: draft.excerpt,
-      tags: input.tags ?? ["novedades", "impuestos"],
-      published_at:
-        input.status === "published" ? new Date().toISOString() : null,
-    })
-    .select("*")
-    .single();
-
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    })) as { id: string; slug: string; status: string };
+  } catch (err) {
+    if (err instanceof ApiDataError) {
+      return NextResponse.json({ error: err.message }, { status: err.status });
+    }
+    throw err;
   }
 
   const site = process.env.NEXT_PUBLIC_SITE_URL || "";

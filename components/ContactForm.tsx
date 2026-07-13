@@ -74,14 +74,15 @@ export function ContactForm() {
           </div>
           <div>
             <label htmlFor="contacto" className="sr-only">
-              Email o WhatsApp
+              Email
             </label>
             <input
               id="contacto"
               name="contacto"
+              type="email"
               required
               autoComplete="email"
-              placeholder="Email o WhatsApp"
+              placeholder="Email"
               onFocus={handleFormStart}
               className="w-full rounded-[10px] border border-border-input bg-white px-3.5 py-3 text-sm text-ink outline-none focus:border-accent"
             />
@@ -109,7 +110,7 @@ export function ContactForm() {
             disabled={pending}
             className="inline-flex min-h-11 items-center justify-center gap-2.5 rounded-[11px] bg-ink px-4 py-3.5 text-[15px] font-semibold text-white disabled:opacity-60"
           >
-            {pending ? "Enviando…" : "Agendá una reunión sin cargo"}
+            {pending ? "Enviando…" : "Enviar consulta"}
           </button>
           {!state.ok && state.message ? (
             <p className="text-xs text-red-600">{state.message}</p>

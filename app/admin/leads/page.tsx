@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
 export default async function AdminLeadsPage() {
   const supabase = await createClient();
@@ -9,8 +8,7 @@ export default async function AdminLeadsPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/admin/login");
 
-  const admin = getSupabaseAdmin();
-  const { data: leads } = await admin
+  const { data: leads } = await supabase
     .from("leads")
     .select("id, nombre, contacto, mensaje, source, created_at")
     .order("created_at", { ascending: false })

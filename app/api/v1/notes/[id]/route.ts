@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { authenticateRequest, requireScope } from "@/lib/api-auth";
-import { getSupabaseAdmin } from "@/lib/supabase-admin";
+import { ApiDataError, deleteNote, getNote, updateNote } from "@/lib/api-data";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -12,16 +12,15 @@ export async function GET(request: Request, { params }: Params) {
   }
 
   const { id } = await params;
-  const supabase = getSupabaseAdmin();
-  const { data, error } = await supabase
-    .from("posts")
-    .select("*, profiles!posts_author_id_fkey(full_name, slug, email)")
-    .eq("id", id)
-    .maybeSingle();
-
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  if (!data) return NextResponse.json({ error: "Not found" }, { status: 404 });
-  return NextResponse.json({ data });
+  try {
+    const data = await getNote(actor, id);
+    return NextResponse.json({ data });
+  } catch (err) {
+    if (err instanceof ApiDataError) {
+      return NextResponse.json({ error: err.message }, { status: err.status });
+    }
+    throw err;
+  }
 }
 
 const patchSchema = z.object({
@@ -55,24 +54,15 @@ export async function PATCH(request: Request, { params }: Params) {
     );
   }
 
-  const updates: Record<string, unknown> = {
-    ...body,
-    updated_at: new Date().toISOString(),
-  };
-  if (body.status === "published") {
-    updates.published_at = new Date().toISOString();
+  try {
+    const data = await updateNote(actor, id, body);
+    return NextResponse.json({ data });
+  } catch (err) {
+    if (err instanceof ApiDataError) {
+      return NextResponse.json({ error: err.message }, { status: err.status });
+    }
+    throw err;
   }
-
-  const supabase = getSupabaseAdmin();
-  const { data, error } = await supabase
-    .from("posts")
-    .update(updates)
-    .eq("id", id)
-    .select("*")
-    .single();
-
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ data });
 }
 
 export async function DELETE(request: Request, { params }: Params) {
@@ -82,8 +72,13 @@ export async function DELETE(request: Request, { params }: Params) {
   }
 
   const { id } = await params;
-  const supabase = getSupabaseAdmin();
-  const { error } = await supabase.from("posts").delete().eq("id", id);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ ok: true });
+  try {
+    await deleteNote(actor, id);
+    return NextResponse.json({ ok: true });
+  } catch (err) {
+    if (err instanceof ApiDataError) {
+      return NextResponse.json({ error: err.message }, { status: err.status });
+    }
+    throw err;
+  }
 }

@@ -28,7 +28,7 @@ export function ContactSection({ news }: { news: HomeNewsItem[] }) {
             acompañando a pymes y familias argentinas.
           </p>
           <div className="flex flex-col gap-2 text-[14.5px] text-ink">
-            <div>Equipo de 4 profesionales</div>
+            <div>Equipo de profesionales con amplia experiencia</div>
             <div>Matrícula CPCE activa</div>
             <div>Atención personalizada</div>
           </div>

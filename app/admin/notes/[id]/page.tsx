@@ -1,6 +1,5 @@
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { NoteEditor } from "../NoteEditor";
 
 type Props = { params: Promise<{ id: string }> };
@@ -13,8 +12,7 @@ export default async function EditNotePage({ params }: Props) {
   if (!user) redirect("/admin/login");
 
   const { id } = await params;
-  const admin = getSupabaseAdmin();
-  const { data: post } = await admin
+  const { data: post } = await supabase
     .from("posts")
     .select("id, title, body_md, excerpt, status, slug, source_url, created_via")
     .eq("id", id)

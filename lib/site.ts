@@ -18,6 +18,6 @@ export function whatsappUrl(message?: string) {
   if (!number) return "#contacto";
   const text =
     message ??
-    "Hola, quiero agendar una reunión sin cargo con DS & Asociados.";
+    "Hola, quiero hacer una consulta con DS & Asociados.";
   return `https://wa.me/${number}?text=${encodeURIComponent(text)}`;
 }

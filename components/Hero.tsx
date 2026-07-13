@@ -12,12 +12,13 @@ export function Hero() {
           Contabilidad + Inteligencia artificial
         </div>
         <h1 className="font-display text-[clamp(32px,6vw,56px)] font-semibold leading-[1.06] tracking-[-0.03em] text-ink">
-          Contabilidad de confianza, potenciada con{" "}
+          Contabilidad de confianza potenciada con{" "}
           <span className="text-accent">inteligencia artificial</span>
         </h1>
         <p className="mx-auto mt-[22px] max-w-[600px] text-[17px] leading-[1.6] text-muted md:text-[19px]">
-          Más de 30 años asesorando pymes. Hoy también diseñamos los agentes de
-          AI que automatizan tu área contable.
+          Más de 30 años asesorando pymes. Hoy sumamos tecnología para detectar
+          inconsistencias y agilizar tu contabilidad; la revisión final siempre
+          es nuestra.
         </p>
         <div className="mt-9 flex flex-wrap justify-center gap-3.5">
           <a
@@ -32,10 +33,10 @@ export function Hero() {
           </a>
           <a
             href="#contacto"
-            onClick={() => trackCtaClick("agendar_reunion", "hero")}
+            onClick={() => trackCtaClick("contacto", "hero")}
             className="inline-flex min-h-11 items-center rounded-xl border border-border-input bg-white px-6 py-3.5 text-[15px] font-semibold text-ink"
           >
-            Agendá una reunión sin cargo
+            Contactanos
           </a>
         </div>
       </div>

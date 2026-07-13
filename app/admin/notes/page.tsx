@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
 export default async function AdminNotesPage() {
   const supabase = await createClient();
@@ -10,8 +9,7 @@ export default async function AdminNotesPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/admin/login");
 
-  const admin = getSupabaseAdmin();
-  const { data: posts } = await admin
+  const { data: posts } = await supabase
     .from("posts")
     .select("id, title, slug, status, created_via, published_at, created_at")
     .order("created_at", { ascending: false })

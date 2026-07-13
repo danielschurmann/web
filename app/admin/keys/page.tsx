@@ -20,8 +20,17 @@ export default function AdminKeysPage() {
 
   async function load() {
     const res = await fetch("/api/v1/api-keys");
-    const json = await res.json();
-    if (res.ok) setKeys(json.data ?? []);
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      setError(
+        typeof json.error === "string"
+          ? json.error
+          : `No se pudieron cargar las keys (${res.status})`,
+      );
+      return;
+    }
+    setError("");
+    setKeys(json.data ?? []);
   }
 
   useEffect(() => {
@@ -39,9 +48,13 @@ export default function AdminKeysPage() {
         scopes: ["notes:write", "notes:read", "notes:publish", "leads:read"],
       }),
     });
-    const json = await res.json();
+    const json = await res.json().catch(() => ({}));
     if (!res.ok) {
-      setError(json.error || "No se pudo crear");
+      setError(
+        typeof json.error === "string"
+          ? json.error
+          : `No se pudo crear la key (${res.status})`,
+      );
       return;
     }
     setToken(json.token);
@@ -49,7 +62,17 @@ export default function AdminKeysPage() {
   }
 
   async function revoke(id: string) {
-    await fetch(`/api/v1/api-keys/${id}`, { method: "DELETE" });
+    setError("");
+    const res = await fetch(`/api/v1/api-keys/${id}`, { method: "DELETE" });
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      setError(
+        typeof json.error === "string"
+          ? json.error
+          : `No se pudo revocar (${res.status})`,
+      );
+      return;
+    }
     await load();
   }
 

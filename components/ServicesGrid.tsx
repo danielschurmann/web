@@ -6,25 +6,25 @@ const services = [
   {
     title: "Impuestos",
     description: "Nacionales, provinciales y municipales",
-    href: "#contacto",
+    href: "/servicios/impuestos",
     id: "impuestos",
   },
   {
     title: "Sueldos y cargas sociales",
     description: "Liquidaciones y DDJJ",
-    href: "#contacto",
+    href: "/servicios/sueldos-y-cargas-sociales",
     id: "sueldos",
   },
   {
     title: "Auditorías",
     description: "Contables y financieras",
-    href: "#contacto",
+    href: "/servicios/auditorias",
     id: "auditorias",
   },
   {
     title: "Automatización de procesos",
     description: "Contable, económica y financiera",
-    href: "#ai",
+    href: "/servicios/automatizacion-de-procesos",
     id: "automatizacion",
   },
 ];

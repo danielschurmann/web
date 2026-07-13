@@ -10,7 +10,7 @@ import {
 
 const situations = [
   {
-    href: "#servicios",
+    href: "/servicios/impuestos",
     title: "Soy monotributista o tengo una pyme",
     subtitle: "Facturación, impuestos y sueldos",
     icon: IconDocument,
@@ -18,7 +18,7 @@ const situations = [
     id: "monotributista_pyme",
   },
   {
-    href: "#servicios",
+    href: "/servicios/auditorias",
     title: "Mi empresa atraviesa un momento crítico",
     subtitle: "Crisis y sucesiones familiares",
     icon: IconTarget,
@@ -36,7 +36,7 @@ const situations = [
   {
     href: "#ai",
     title: "Quiero automatizar mi área contable",
-    subtitle: "Agentes de AI a medida",
+    subtitle: "Tecnología e IA a medida",
     icon: IconRobot,
     featured: true,
     id: "automatizar_ai",

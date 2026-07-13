@@ -1,4 +1,16 @@
-const team = [
+import Image from "next/image";
+
+type TeamMember = {
+  name: string;
+  role: string;
+  bio: string;
+  featured: boolean;
+  photo?: string;
+  /** Ajuste vertical del recorte del retrato dentro del círculo. */
+  objectPosition?: string;
+};
+
+const team: TeamMember[] = [
   {
     name: "Daniel Schurmann",
     role: "Director",
@@ -10,23 +22,41 @@ const team = [
     role: "Contador Público",
     bio: "A cargo de las áreas de Sueldos e Impuestos del estudio.",
     featured: false,
+    photo: "/team/sebastian-cadenaba.png",
+    objectPosition: "center 42%",
   },
   {
     name: "Alejandra Fernández",
     role: "Atención a clientes",
     bio: "Coordina las tareas contables y el día a día con cada cliente.",
     featured: false,
+    photo: "/team/alejandra-fernandez.png",
+    objectPosition: "center 66%",
   },
   {
     name: "Gabriel Marín",
-    role: "Líder de AI",
-    bio: "Diseña e implementa los agentes de AI que automatizan el área contable.",
-    featured: true,
+    role: "Tecnología e IA",
+    bio: "Implementa tecnología para agilizar el área contable; la revisión final siempre es del equipo.",
+    featured: false,
   },
 ];
 
-function Avatar({ name }: { name: string }) {
-  const initials = name
+function Avatar({ person }: { person: TeamMember }) {
+  if (person.photo) {
+    return (
+      <Image
+        src={person.photo}
+        alt={person.name}
+        width={104}
+        height={104}
+        sizes="104px"
+        className="h-[104px] w-[104px] rounded-full border border-border object-cover"
+        style={{ objectPosition: person.objectPosition ?? "center" }}
+      />
+    );
+  }
+
+  const initials = person.name
     .split(" ")
     .filter(Boolean)
     .slice(0, 2)
@@ -74,7 +104,7 @@ export function Team() {
                   IA
                 </span>
               ) : null}
-              <Avatar name={person.name} />
+              <Avatar person={person} />
               <div className="mt-4 mb-1 font-display text-lg font-semibold text-ink">
                 {person.name}
               </div>

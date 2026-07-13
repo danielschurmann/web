@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import type { ComponentPropsWithoutRef } from "react";
+import ReactMarkdown from "react-markdown";
+import rehypeSanitize from "rehype-sanitize";
+import remarkGfm from "remark-gfm";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { WhatsappFab } from "@/components/WhatsappFab";
-import {
-  formatPostDate,
-  getPublishedPostBySlug,
-  renderPostMarkdown,
-} from "@/lib/posts";
+import { formatPostDate, getPublishedPostBySlug } from "@/lib/posts";
 
 export const revalidate = 60;
 export const dynamic = "force-dynamic";
@@ -38,7 +38,6 @@ export default async function NovedadDetailPage({ params }: Props) {
   if (!post) notFound();
 
   const author = post.profiles?.full_name ?? "DS & Asociados";
-  const html = renderPostMarkdown(post.body_md);
 
   return (
     <div className="relative min-h-screen bg-page text-ink">
@@ -67,10 +66,28 @@ export default async function NovedadDetailPage({ params }: Props) {
           </p>
         ) : null}
 
-        <article
-          className="prose-ds mt-10"
-          dangerouslySetInnerHTML={{ __html: html }}
-        />
+        <article className="prose prose-ds mt-10 max-w-none">
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            rehypePlugins={[rehypeSanitize]}
+            components={{
+              a: ({ href, ...props }: ComponentPropsWithoutRef<"a">) => {
+                const isExternal = /^https?:\/\//.test(href ?? "");
+                return (
+                  <a
+                    href={href}
+                    {...(isExternal
+                      ? { target: "_blank", rel: "noopener noreferrer" }
+                      : {})}
+                    {...props}
+                  />
+                );
+              },
+            }}
+          >
+            {post.body_md}
+          </ReactMarkdown>
+        </article>
 
         {post.tags?.length ? (
           <div className="mt-10 flex flex-wrap gap-2 border-t border-border pt-6">

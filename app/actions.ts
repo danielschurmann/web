@@ -2,15 +2,15 @@
 
 import { z } from "zod";
 import { notifyLeadEmail } from "@/lib/email";
-import { getSupabaseAdmin } from "@/lib/supabase-admin";
+import { getSupabasePublic } from "@/lib/supabase-public";
 
 const leadSchema = z.object({
   nombre: z.string().trim().min(2, "Ingresá tu nombre.").max(120),
   contacto: z
     .string()
     .trim()
-    .min(5, "Ingresá un email o WhatsApp.")
-    .max(160),
+    .max(160)
+    .email("Ingresá un email válido."),
   mensaje: z.string().trim().max(2000).optional(),
 });
 
@@ -48,7 +48,7 @@ export async function submitLead(
   const { nombre, contacto, mensaje } = parsed.data;
 
   try {
-    const supabase = getSupabaseAdmin();
+    const supabase = getSupabasePublic();
     const { error } = await supabase.from("leads").insert({
       nombre,
       contacto,

@@ -82,6 +82,51 @@ flowchart LR
 
 ---
 
+## Formato de contenido (`body_md`)
+
+El campo `body_md` se guarda y se publica en **Markdown (GitHub-Flavored Markdown / GFM)**. La página pública `/novedades/:slug` lo convierte a HTML sanitizado (tablas, listas, títulos, links, negritas, citas). La ruta `/novedades/:slug.md` devuelve el Markdown **crudo** para agentes.
+
+**Reglas obligatorias:**
+
+- **Solo Markdown, nunca HTML.** No mandes `<table>`, `<div>`, `<br>` ni etiquetas HTML: se descartan al sanitizar.
+- **Párrafos separados por una línea en blanco.** No pegues todo en un solo bloque.
+- **Títulos** con `##` (sección) y `###` (subsección). Reservá `#` para el título de la nota (ya lo agrega el sistema).
+- **Listas** con `-` (viñetas) o `1.` (numeradas).
+- **Links** con `[texto](https://url)`.
+- **Negrita** con `**texto**`, cursiva con `*texto*`.
+- **Citas / destacados** con `> texto`.
+
+### Tablas (GFM pipe tables)
+
+Las tablas usan el formato de pipes de GFM y **DEBEN** cumplir:
+
+1. Una **línea en blanco antes** y **una línea en blanco después** de la tabla.
+2. Una **fila de encabezado** seguida de una **fila separadora** con guiones: `|---|---|`.
+3. Cada fila en **su propia línea**.
+
+> ⚠️ **Esto es lo que rompía antes:** tablas en una sola línea o sin fila separadora `|---|---|`. No se renderizan.
+
+**Ejemplo correcto:**
+
+```markdown
+Texto que introduce la tabla.
+
+| Categoría | Tope anual     | Cuota mensual |
+|-----------|----------------|---------------|
+| A         | $10.277.988,13 | $42.386,74    |
+| B         | $15.058.447,71 | $48.250,78    |
+
+Texto que sigue después de la tabla.
+```
+
+**Ejemplo incorrecto (NO usar):**
+
+```markdown
+Texto | Categoría | Tope | Cuota | A | $10.277.988 | $42.386
+```
+
+---
+
 ## Endpoints
 
 ### `POST /api/v1/notes/from-url`  ★ principal para agentes
@@ -218,9 +263,12 @@ curl "$BASE/api/v1/leads" \
 | 401 | Token ausente/inválido/revocado |
 | 403 | Falta scope (ej. publicar sin `notes:publish`) |
 | 400 | Body inválido o `author` slug inexistente |
-| 500 | Error de servidor / DB |
+| 404 | Nota inexistente (GET/PATCH por id) |
+| 500 | Error real de servidor / DB |
 
 Si `author` no existe: el perfil aún no fue creado en Supabase. Pedí a un humano que invite al usuario admin.
+
+> **Nota (2026-07): key inválida ahora devuelve 401, no 500.** El API de agentes ya **no depende** de `SUPABASE_SERVICE_ROLE_KEY`. Las operaciones se ejecutan mediante funciones `SECURITY DEFINER` de Postgres (RPCs) invocadas con la clave `anon`, que autorizan internamente validando el hash del token. Un token inválido/revocado o sin scope devuelve `401`/`403`; los `500` quedan reservados para errores reales de servidor/DB.
 
 ---
 
@@ -239,6 +287,8 @@ Si `author` no existe: el perfil aún no fue creado en Supabase. Pedí a un huma
 
 | Fecha | Cambio |
 |-------|--------|
+| 2026-07-10 | Render Markdown (GFM) en `/novedades/:slug`: tablas, listas, títulos y links sanitizados. Nueva sección **Formato de contenido (`body_md`)** con reglas de tablas GFM (línea en blanco antes/después + fila separadora `\|---\|`) |
+| 2026-07-10 | Fix durable: el API de agentes ya no usa `service_role`. Notas/leads pasan por RPCs `SECURITY DEFINER` (RPC + clave anon). Key inválida → `401` (antes `500`); nueva fila `404` para notas inexistentes |
 | 2026-07-10 | Base URL `estudiodsyasoc.com.ar`, sección Claude, curls create/edit/publish, ruta pública del manual |
 | 2026-07-10 | Rutas públicas: `/novedades`, `/novedades/:slug`, export MD `/novedades/:slug.md` |
 | 2026-07-10 | v1 inicial: notes, from-url, leads, api-keys, auth Bearer `dsa_` |

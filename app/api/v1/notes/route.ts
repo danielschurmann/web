@@ -1,11 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import {
-  authenticateRequest,
-  requireScope,
-  slugify,
-} from "@/lib/api-auth";
-import { getSupabaseAdmin } from "@/lib/supabase-admin";
+import { authenticateRequest, requireScope } from "@/lib/api-auth";
+import { ApiDataError, createNote, listNotes } from "@/lib/api-data";
 
 const createSchema = z.object({
   title: z.string().min(3).max(200),
@@ -26,25 +22,16 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const url = new URL(request.url);
-  const status = url.searchParams.get("status");
-  const supabase = getSupabaseAdmin();
-
-  let query = supabase
-    .from("posts")
-    .select(
-      "id, title, slug, excerpt, status, source_url, created_via, tags, published_at, created_at, updated_at, author_id, profiles!posts_author_id_fkey(full_name, slug)",
-    )
-    .order("created_at", { ascending: false })
-    .limit(50);
-
-  if (status) query = query.eq("status", status);
-
-  const { data, error } = await query;
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  const status = new URL(request.url).searchParams.get("status");
+  try {
+    const data = await listNotes(actor, status);
+    return NextResponse.json({ data });
+  } catch (err) {
+    if (err instanceof ApiDataError) {
+      return NextResponse.json({ error: err.message }, { status: err.status });
+    }
+    throw err;
   }
-  return NextResponse.json({ data });
 }
 
 export async function POST(request: Request) {
@@ -70,59 +57,13 @@ export async function POST(request: Request) {
     );
   }
 
-  const supabase = getSupabaseAdmin();
-  let authorId = actor.userId;
-
-  if (body.author_slug) {
-    const { data: author } = await supabase
-      .from("profiles")
-      .select("id")
-      .eq("slug", body.author_slug)
-      .maybeSingle();
-    if (!author) {
-      return NextResponse.json(
-        { error: `Author slug not found: ${body.author_slug}` },
-        { status: 400 },
-      );
+  try {
+    const data = await createNote(actor, body);
+    return NextResponse.json({ data }, { status: 201 });
+  } catch (err) {
+    if (err instanceof ApiDataError) {
+      return NextResponse.json({ error: err.message }, { status: err.status });
     }
-    authorId = author.id;
+    throw err;
   }
-
-  const baseSlug = slugify(body.slug || body.title);
-  let slug = baseSlug;
-  for (let i = 0; i < 5; i++) {
-    const { data: existing } = await supabase
-      .from("posts")
-      .select("id")
-      .eq("slug", slug)
-      .maybeSingle();
-    if (!existing) break;
-    slug = `${baseSlug}-${i + 2}`;
-  }
-
-  const { data, error } = await supabase
-    .from("posts")
-    .insert({
-      author_id: authorId,
-      title: body.title,
-      slug,
-      excerpt: body.excerpt ?? null,
-      body_md: body.body_md,
-      source_url: body.source_url ?? null,
-      status: body.status,
-      created_via: actor.via === "api_key" ? "agent" : "backoffice",
-      seo_title: body.seo_title ?? body.title,
-      seo_description: body.seo_description ?? body.excerpt ?? null,
-      tags: body.tags ?? [],
-      published_at:
-        body.status === "published" ? new Date().toISOString() : null,
-    })
-    .select("*")
-    .single();
-
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
-
-  return NextResponse.json({ data }, { status: 201 });
 }
