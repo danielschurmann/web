@@ -16,6 +16,8 @@ const team: TeamMember[] = [
     role: "Director",
     bio: "Contador Público (UBA). Fundó el estudio y lidera el asesoramiento a pymes.",
     featured: false,
+    photo: "/team/daniel-schurmann.png",
+    objectPosition: "center 30%",
   },
   {
     name: "Sebastián Cadenaba",

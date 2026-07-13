@@ -10,8 +10,21 @@ function hasSmtpConfig() {
   );
 }
 
+/** Destinatario por defecto de las notificaciones de leads. */
+const DEFAULT_NOTIFY_EMAIL = "alejandra@estudiodsyasoc.com.ar";
+
+/** Admite una o varias direcciones separadas por coma en CONTACT_NOTIFY_EMAIL. */
+function getNotifyRecipients(): string[] {
+  const raw = process.env.CONTACT_NOTIFY_EMAIL?.trim();
+  const list = (raw && raw.length > 0 ? raw : DEFAULT_NOTIFY_EMAIL)
+    .split(",")
+    .map((email) => email.trim())
+    .filter(Boolean);
+  return list.length > 0 ? list : [DEFAULT_NOTIFY_EMAIL];
+}
+
 async function sendViaSmtp(input: {
-  to: string;
+  to: string[];
   subject: string;
   text: string;
 }) {
@@ -35,7 +48,7 @@ async function sendViaSmtp(input: {
 }
 
 async function sendViaResend(input: {
-  to: string;
+  to: string[];
   subject: string;
   text: string;
 }) {
@@ -49,7 +62,7 @@ async function sendViaResend(input: {
   const resend = new Resend(apiKey);
   const { error } = await resend.emails.send({
     from,
-    to: [input.to],
+    to: input.to,
     subject: input.subject,
     text: input.text,
   });
@@ -65,17 +78,18 @@ export async function notifyLeadEmail(input: {
   contacto: string;
   mensaje?: string;
 }) {
-  const to = process.env.CONTACT_NOTIFY_EMAIL;
-  if (!to) {
-    throw new Error("Falta CONTACT_NOTIFY_EMAIL en el entorno.");
-  }
+  const to = getNotifyRecipients();
 
-  const subject = `Nuevo lead: ${input.nombre}`;
+  const subject = `Nueva consulta desde la web: ${input.nombre}`;
   const text = [
+    "Llegó una nueva consulta desde el formulario de contacto.",
+    "",
     `Nombre: ${input.nombre}`,
-    `Email: ${input.contacto}`,
+    `Contacto: ${input.contacto}`,
     `Mensaje: ${input.mensaje?.trim() || "(sin mensaje)"}`,
     `Origen: landing`,
+    "",
+    "Respondé a la brevedad para no perder la consulta.",
   ].join("\n");
 
   if (hasSmtpConfig()) {

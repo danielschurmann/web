@@ -20,10 +20,25 @@
    ```
    También en `.env.local` para desarrollo.
 
-2. **Resend** (email al recibir leads) — opcional al inicio:
-   - Crear cuenta / API key en https://resend.com
-   - Agregar `RESEND_API_KEY`, `CONTACT_NOTIFY_EMAIL`, `RESEND_FROM_EMAIL` en Vercel
-   - Sin esto, el lead igual se guarda en Supabase
+2. **Aviso por email al recibir un lead** — el aviso se manda a
+   `alejandra@estudiodsyasoc.com.ar` (destinatario por defecto; se puede
+   sobreescribir con `CONTACT_NOTIFY_EMAIL`, admite varios separados por coma).
+   El código ya dispara el mail tras guardar el lead, pero **faltan las
+   credenciales de envío en Vercel** (sin esto el lead igual se guarda):
+
+   - Opción A) Gmail SMTP (recomendada):
+     ```bash
+     cd web
+     vercel env add CONTACT_NOTIFY_EMAIL production --value 'alejandra@estudiodsyasoc.com.ar' --yes --scope estudio-ds-y-asoc
+     vercel env add SMTP_HOST production --value 'smtp.gmail.com' --yes --scope estudio-ds-y-asoc
+     vercel env add SMTP_PORT production --value '587' --yes --scope estudio-ds-y-asoc
+     vercel env add SMTP_USER production --value 'daniel@estudiodsyasoc.com.ar' --yes --scope estudio-ds-y-asoc
+     vercel env add SMTP_PASS production --sensitive --yes --scope estudio-ds-y-asoc   # app password de Gmail
+     vercel env add SMTP_FROM production --value 'DS & Asociados <daniel@estudiodsyasoc.com.ar>' --yes --scope estudio-ds-y-asoc
+     vercel deploy --prod --yes --scope estudio-ds-y-asoc
+     ```
+   - Opción B) Resend: crear API key en https://resend.com y agregar
+     `RESEND_API_KEY`, `RESEND_FROM_EMAIL` y `CONTACT_NOTIFY_EMAIL` en Vercel.
 
 3. **Service role key** (recomendado):
    - Dashboard Supabase → Project Settings → API → `service_role`

@@ -38,7 +38,7 @@ const situations = [
     title: "Quiero automatizar mi área contable",
     subtitle: "Tecnología e IA a medida",
     icon: IconRobot,
-    featured: true,
+    featured: false,
     id: "automatizar_ai",
   },
 ];
