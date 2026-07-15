@@ -29,21 +29,30 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
+  // Redirige preservando las cookies que Supabase pudo haber refrescado en
+  // `supabaseResponse`. Si no se copian, un refresh de token que ocurra durante
+  // un redirect se pierde y el usuario termina rebotando al login.
+  const redirectTo = (pathname: string) => {
+    const url = request.nextUrl.clone();
+    url.pathname = pathname;
+    const response = NextResponse.redirect(url);
+    supabaseResponse.cookies.getAll().forEach((cookie) => {
+      response.cookies.set(cookie);
+    });
+    return response;
+  };
+
   const path = request.nextUrl.pathname;
   const isAdmin = path.startsWith("/admin");
   const isAuthPage =
     path.startsWith("/admin/login") || path.startsWith("/auth");
 
   if (isAdmin && !isAuthPage && !user) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/admin/login";
-    return NextResponse.redirect(url);
+    return redirectTo("/admin/login");
   }
 
   if (path === "/admin/login" && user) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/admin";
-    return NextResponse.redirect(url);
+    return redirectTo("/admin");
   }
 
   return supabaseResponse;
