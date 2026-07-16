@@ -66,3 +66,29 @@ asigna al invitar y luego se puede cambiar desde la misma sección.
    y apuntar DNS según indique Vercel.
 
 5. **Preview envs** — si hace falta, agregar las mismas vars a `preview` (la CLI a veces pide branch).
+
+## Backups automáticos de la base
+
+Hay un cron diario (`/api/cron/backup`, 06:30 UTC, definido en `vercel.json`)
+que hace un dump lógico en JSON de las tablas (`posts`, `leads`, `profiles`,
+`api_keys`) y lo sube a **Vercel Blob** en `backups/db-<fecha>.json`. El archivo
+es **privado** (contiene datos personales) y se conservan los últimos 30 días
+(los más viejos se borran solos).
+
+Para que funcione hacen falta dos cosas en Vercel:
+
+1. **Un Blob store conectado al proyecto** (inyecta `BLOB_READ_WRITE_TOKEN`):
+   ```bash
+   cd web
+   vercel blob store add backups-ds --scope estudio-ds-y-asoc
+   # seguir el prompt para vincularlo al proyecto ds-asociados-landing
+   ```
+   (o desde el dashboard: Storage → Create Database → Blob → Connect Project).
+
+2. **`SUPABASE_SERVICE_ROLE_KEY`** en el entorno (la misma que usa
+   `/admin/users`). Sin ella el backup no puede leer `leads`/`profiles` porque
+   los tapa RLS. Ver punto 3 de arriba.
+
+El endpoint está protegido con `CRON_SECRET`: un GET manual sin ese header
+devuelve 401 (esperado). Para leer un backup usar `get()` de `@vercel/blob` con
+el token del store, o descargarlo desde el dashboard de Vercel (Storage → Blob).
