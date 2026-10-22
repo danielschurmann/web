@@ -10,17 +10,22 @@ function hasSmtpConfig() {
   );
 }
 
-/** Destinatario por defecto de las notificaciones de leads. */
-const DEFAULT_NOTIFY_EMAIL = "alejandra@estudiodsyasoc.com.ar";
+/** Siempre recibe las notificaciones de leads, aunque CONTACT_NOTIFY_EMAIL esté seteada. */
+const ALWAYS_NOTIFY_EMAIL = "alejandra@estudiodsyasoc.com.ar";
 
-/** Admite una o varias direcciones separadas por coma en CONTACT_NOTIFY_EMAIL. */
+/** CONTACT_NOTIFY_EMAIL suma destinatarios extra (separados por coma). */
 function getNotifyRecipients(): string[] {
-  const raw = process.env.CONTACT_NOTIFY_EMAIL?.trim();
-  const list = (raw && raw.length > 0 ? raw : DEFAULT_NOTIFY_EMAIL)
+  const extra = (process.env.CONTACT_NOTIFY_EMAIL ?? "")
     .split(",")
     .map((email) => email.trim())
     .filter(Boolean);
-  return list.length > 0 ? list : [DEFAULT_NOTIFY_EMAIL];
+  const seen = new Set<string>();
+  return [ALWAYS_NOTIFY_EMAIL, ...extra].filter((email) => {
+    const key = email.toLowerCase();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
 
 async function sendViaSmtp(input: {

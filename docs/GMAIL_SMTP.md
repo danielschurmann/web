@@ -92,6 +92,8 @@ vercel env add SMTP_FROM production --scope estudio-ds-y-asoc
 # valor: DS & Asociados <daniel@estudiodsyasoc.com.ar>
 ```
 
+> `alejandra@estudiodsyasoc.com.ar` recibe **siempre** el aviso de cada consulta (fijo en `lib/email.ts`). `CONTACT_NOTIFY_EMAIL` solo **suma** destinatarios extra (separados por coma); no la reemplaza.
+
 Resumen de nombres (tienen que coincidir exactamente):
 
 | Env var | Ejemplo |
@@ -151,7 +153,7 @@ La contraseña temporal es **secundaria**. Preferí siempre el link por email.
 ## E. Checklist de prueba
 
 1. **Auth:** `/admin/login` → magic link → llega el mail → entrás al backoffice.
-2. **Landing:** enviar el formulario de contacto → mail a `CONTACT_NOTIFY_EMAIL`.
+2. **Landing:** enviar el formulario de contacto → mail a Alejandra (+ `CONTACT_NOTIFY_EMAIL` si está).
 3. Si falla Auth: spam, App Password, SMTP en Supabase, logs Auth.
 4. Si falla landing: Function logs en Vercel; verificar `SMTP_*` o `RESEND_API_KEY` + redeploy.
 
