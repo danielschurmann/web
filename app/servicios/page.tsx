@@ -4,7 +4,7 @@ import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { WhatsappFab } from "@/components/WhatsappFab";
 import { services } from "@/lib/services";
-import { siteConfig } from "@/lib/site";
+import { absoluteUrl, siteConfig } from "@/lib/site";
 
 const description =
   "Impuestos, sueldos y cargas sociales, auditorías y automatización de procesos. Contabilidad de confianza potenciada con tecnología, con la revisión final de nuestro equipo.";
@@ -16,15 +16,24 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: siteConfig.locale,
-    url: `${siteConfig.url.replace(/\/$/, "")}/servicios`,
+    url: absoluteUrl("/servicios"),
     siteName: siteConfig.name,
     title: `Servicios · ${siteConfig.name}`,
     description,
+    images: [
+      {
+        url: siteConfig.socialImage,
+        width: 1200,
+        height: 630,
+        alt: `Servicios de ${siteConfig.name}`,
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: `Servicios · ${siteConfig.name}`,
     description,
+    images: [siteConfig.socialImage],
   },
 };
 

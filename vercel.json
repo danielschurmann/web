@@ -9,5 +9,44 @@
       "path": "/api/cron/backup",
       "schedule": "30 6 * * *"
     }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        }
+      ]
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.estudiodsyasoc.com.ar"
+        }
+      ],
+      "destination": "https://estudiodsyasoc.com.ar/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "ds-asociados-landing.vercel.app"
+        }
+      ],
+      "destination": "https://estudiodsyasoc.com.ar/:path*",
+      "permanent": true
+    }
   ]
 }

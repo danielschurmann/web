@@ -10,7 +10,7 @@ import {
   getServiceBySlug,
   services,
 } from "@/lib/services";
-import { siteConfig } from "@/lib/site";
+import { absoluteUrl, siteConfig } from "@/lib/site";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -33,17 +33,26 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description: service.metaDescription,
     alternates: { canonical },
     openGraph: {
-      type: "article",
+      type: "website",
       locale: siteConfig.locale,
-      url: `${siteConfig.url.replace(/\/$/, "")}${canonical}`,
+      url: absoluteUrl(canonical),
       siteName: siteConfig.name,
       title,
       description: service.metaDescription,
+      images: [
+        {
+          url: siteConfig.socialImage,
+          width: 1200,
+          height: 630,
+          alt: service.title,
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description: service.metaDescription,
+      images: [siteConfig.socialImage],
     },
   };
 }
@@ -54,7 +63,6 @@ export default async function ServicePage({ params }: Props) {
   if (!service) notFound();
 
   const others = getOtherServices(service.slug);
-  const base = siteConfig.url.replace(/\/$/, "");
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -62,15 +70,21 @@ export default async function ServicePage({ params }: Props) {
     name: service.title,
     description: service.metaDescription,
     serviceType: service.name,
-    url: `${base}/servicios/${service.slug}`,
-    areaServed: {
-      "@type": "Country",
-      name: "Argentina",
-    },
+    url: absoluteUrl(`/servicios/${service.slug}`),
+    areaServed: [
+      {
+        "@type": "City",
+        name: siteConfig.city,
+      },
+      {
+        "@type": "Country",
+        name: siteConfig.country,
+      },
+    ],
     provider: {
       "@type": "AccountingService",
       name: siteConfig.legalName,
-      url: base,
+      url: siteConfig.url,
     },
   };
 

@@ -9,6 +9,7 @@ import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { WhatsappFab } from "@/components/WhatsappFab";
 import { formatPostDate, getPublishedPostBySlug } from "@/lib/posts";
+import { absoluteUrl, siteConfig } from "@/lib/site";
 
 export const revalidate = 60;
 export const dynamic = "force-dynamic";
@@ -23,12 +24,43 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const post = await getPublishedPostBySlug(slug);
-  if (!post) return { title: "Novedad" };
+  if (!post) return { title: "Novedad", robots: { index: false, follow: false } };
+
+  const description =
+    post.excerpt ??
+    `Novedad fiscal y contable de ${siteConfig.name} para pymes.`;
+  const url = absoluteUrl(`/novedades/${post.slug}`);
 
   return {
     title: post.title,
-    description: post.excerpt ?? undefined,
+    description,
     alternates: { canonical: `/novedades/${post.slug}` },
+    openGraph: {
+      type: "article",
+      locale: siteConfig.locale,
+      url,
+      siteName: siteConfig.name,
+      title: post.title,
+      description,
+      publishedTime: post.published_at ?? post.created_at,
+      authors: post.profiles?.full_name
+        ? [post.profiles.full_name]
+        : [siteConfig.name],
+      images: [
+        {
+          url: siteConfig.socialImage,
+          width: 1200,
+          height: 630,
+          alt: post.title,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description,
+      images: [siteConfig.socialImage],
+    },
   };
 }
 
@@ -37,10 +69,44 @@ export default async function NovedadDetailPage({ params }: Props) {
   const post = await getPublishedPostBySlug(slug);
   if (!post) notFound();
 
-  const author = post.profiles?.full_name ?? "DS & Asociados";
+  const author = post.profiles?.full_name ?? siteConfig.name;
+  const published = post.published_at ?? post.created_at;
+  const description =
+    post.excerpt ??
+    `Novedad fiscal y contable de ${siteConfig.name} para pymes.`;
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: post.title,
+    description,
+    datePublished: published,
+    dateModified: published,
+    mainEntityOfPage: absoluteUrl(`/novedades/${post.slug}`),
+    image: [siteConfig.socialImage],
+    author: {
+      "@type": "Person",
+      name: author,
+    },
+    publisher: {
+      "@type": "Organization",
+      name: siteConfig.legalName,
+      logo: {
+        "@type": "ImageObject",
+        url: siteConfig.logo,
+      },
+    },
+    inLanguage: siteConfig.language,
+  };
 
   return (
     <div className="relative min-h-screen bg-page text-ink">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
+        }}
+      />
       <Header />
       <main className="mx-auto max-w-[720px] overflow-x-clip px-5 py-14 md:px-10 md:py-20">
         <Link
@@ -51,9 +117,7 @@ export default async function NovedadDetailPage({ params }: Props) {
         </Link>
 
         <p className="mt-8 text-xs text-fainter capitalize">
-          <time dateTime={post.published_at ?? post.created_at}>
-            {formatPostDate(post.published_at ?? post.created_at)}
-          </time>
+          <time dateTime={published}>{formatPostDate(published)}</time>
           {" · "}
           {author}
         </p>

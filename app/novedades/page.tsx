@@ -4,15 +4,40 @@ import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { WhatsappFab } from "@/components/WhatsappFab";
 import { formatPostDate, getPublishedPosts } from "@/lib/posts";
+import { absoluteUrl, siteConfig } from "@/lib/site";
 
 export const revalidate = 60;
 export const dynamic = "force-dynamic";
 
+const description =
+  "Novedades fiscales y contables para pymes, elaboradas por DS & Asociados.";
+
 export const metadata: Metadata = {
   title: "Novedades",
-  description:
-    "Novedades fiscales y contables para pymes, elaboradas por DS & Asociados.",
+  description,
   alternates: { canonical: "/novedades" },
+  openGraph: {
+    type: "website",
+    locale: siteConfig.locale,
+    url: absoluteUrl("/novedades"),
+    siteName: siteConfig.name,
+    title: `Novedades fiscales y contables · ${siteConfig.name}`,
+    description,
+    images: [
+      {
+        url: siteConfig.socialImage,
+        width: 1200,
+        height: 630,
+        alt: `Novedades de ${siteConfig.name}`,
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `Novedades fiscales y contables · ${siteConfig.name}`,
+    description,
+    images: [siteConfig.socialImage],
+  },
 };
 
 export default async function NovedadesPage() {
