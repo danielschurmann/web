@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { getCurrentProfile } from "@/lib/current-user";
 import { slugify } from "@/lib/api-auth";
+import { siteConfig } from "@/lib/site";
 import { createClient } from "@/lib/supabase/server";
 
 export type UsersActionState = {
@@ -73,7 +74,7 @@ export async function inviteUser(
     slug: slugify(fullName),
   };
 
-  const redirectTo = `${process.env.NEXT_PUBLIC_SITE_URL ?? ""}/auth/callback?next=/admin`;
+  const redirectTo = `${siteConfig.url}/auth/callback?next=/admin`;
 
   const { error } = await admin.auth.admin.inviteUserByEmail(email, {
     data: meta,

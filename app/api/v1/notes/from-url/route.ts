@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { authenticateRequest, requireScope } from "@/lib/api-auth";
 import { ApiDataError, createNote } from "@/lib/api-data";
+import { siteConfig } from "@/lib/site";
 
 const schema = z.object({
   url: z.string().url(),
@@ -137,7 +138,7 @@ export async function POST(request: Request) {
     throw err;
   }
 
-  const site = process.env.NEXT_PUBLIC_SITE_URL || "";
+  const site = siteConfig.url;
   return NextResponse.json(
     {
       data,

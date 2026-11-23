@@ -1,10 +1,26 @@
+const PUBLIC_SITE_URL = "https://estudiodsyasoc.com.ar";
+
+function resolveSiteUrl() {
+  const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim().replace(/\/$/, "");
+
+  if (process.env.NODE_ENV === "development") {
+    return configured || "http://localhost:3000";
+  }
+
+  if (configured && !configured.includes(".vercel.app")) {
+    return configured;
+  }
+
+  return PUBLIC_SITE_URL;
+}
+
 export const siteConfig = {
   name: "DS & Asociados",
   legalName: "DS & Asociados",
   description:
     "Estudio contable con más de 30 años asesorando pymes. Contabilidad de confianza potenciada con inteligencia artificial.",
   locale: "es-AR",
-  url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+  url: resolveSiteUrl(),
   whatsappNumber: process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "",
   contactEmail: process.env.CONTACT_NOTIFY_EMAIL ?? "",
   city: "Buenos Aires",
