@@ -21,54 +21,64 @@ function normalizeAuthor(
 }
 
 export async function getPublishedPosts(limit = 50): Promise<PublishedPost[]> {
-  const supabase = getSupabasePublic();
-  const { data, error } = await supabase
-    .from("posts")
-    .select(
-      "id, title, slug, excerpt, body_md, source_url, tags, published_at, created_at, profiles!posts_author_id_fkey(full_name, slug)",
-    )
-    .eq("status", "published")
-    .order("published_at", { ascending: false })
-    .limit(limit);
+  try {
+    const supabase = getSupabasePublic();
+    const { data, error } = await supabase
+      .from("posts")
+      .select(
+        "id, title, slug, excerpt, body_md, source_url, tags, published_at, created_at, profiles!posts_author_id_fkey(full_name, slug)",
+      )
+      .eq("status", "published")
+      .order("published_at", { ascending: false })
+      .limit(limit);
 
-  if (error) {
+    if (error) {
+      console.error("getPublishedPosts", error);
+      return [];
+    }
+
+    return (data ?? []).map((row) => ({
+      ...row,
+      profiles: normalizeAuthor(
+        row.profiles as PublishedPost["profiles"] | PublishedPost["profiles"][],
+      ),
+    })) as PublishedPost[];
+  } catch (error) {
     console.error("getPublishedPosts", error);
     return [];
   }
-
-  return (data ?? []).map((row) => ({
-    ...row,
-    profiles: normalizeAuthor(
-      row.profiles as PublishedPost["profiles"] | PublishedPost["profiles"][],
-    ),
-  })) as PublishedPost[];
 }
 
 export async function getPublishedPostBySlug(
   slug: string,
 ): Promise<PublishedPost | null> {
-  const supabase = getSupabasePublic();
-  const { data, error } = await supabase
-    .from("posts")
-    .select(
-      "id, title, slug, excerpt, body_md, source_url, tags, published_at, created_at, profiles!posts_author_id_fkey(full_name, slug)",
-    )
-    .eq("status", "published")
-    .eq("slug", slug)
-    .maybeSingle();
+  try {
+    const supabase = getSupabasePublic();
+    const { data, error } = await supabase
+      .from("posts")
+      .select(
+        "id, title, slug, excerpt, body_md, source_url, tags, published_at, created_at, profiles!posts_author_id_fkey(full_name, slug)",
+      )
+      .eq("status", "published")
+      .eq("slug", slug)
+      .maybeSingle();
 
-  if (error) {
+    if (error) {
+      console.error("getPublishedPostBySlug", error);
+      return null;
+    }
+    if (!data) return null;
+
+    return {
+      ...data,
+      profiles: normalizeAuthor(
+        data.profiles as PublishedPost["profiles"] | PublishedPost["profiles"][],
+      ),
+    } as PublishedPost;
+  } catch (error) {
     console.error("getPublishedPostBySlug", error);
     return null;
   }
-  if (!data) return null;
-
-  return {
-    ...data,
-    profiles: normalizeAuthor(
-      data.profiles as PublishedPost["profiles"] | PublishedPost["profiles"][],
-    ),
-  } as PublishedPost;
 }
 
 export function formatPostDate(iso: string | null | undefined) {

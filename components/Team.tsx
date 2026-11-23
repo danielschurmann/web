@@ -48,7 +48,7 @@ function Avatar({ person }: { person: TeamMember }) {
     return (
       <Image
         src={person.photo}
-        alt={person.name}
+        alt={`${person.name}, ${person.role} de DS & Asociados`}
         width={104}
         height={104}
         sizes="104px"
