@@ -5,7 +5,7 @@
 - App en `/web` (Next.js 16 + Tailwind 4)
 - Vercel team: `estudio-ds-y-asoc`
 - Proyecto: `ds-asociados-landing`
-- Producción: https://ds-asociados-landing.vercel.app
+- Producción: https://estudiodsyasoc.com.ar
 - Supabase org: `EstudioDS y Asoc`
 - Proyecto Supabase: `daniel S Project` (`xqacwzdfihycqzcmuejs`)
 - Tabla `public.leads` creada con RLS (insert para anon)
