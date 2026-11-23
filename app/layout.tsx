@@ -72,16 +72,35 @@ export const viewport: Viewport = {
 
 const phone = siteConfig.whatsappNumber.replace(/\D/g, "");
 
+const logoImage = {
+  "@type": "ImageObject",
+  url: siteConfig.logo,
+  contentUrl: siteConfig.logo,
+  width: 32,
+  height: 32,
+  caption: `${siteConfig.name} logo`,
+};
+
+const socialImage = {
+  "@type": "ImageObject",
+  url: siteConfig.socialImage,
+  contentUrl: siteConfig.socialImage,
+  width: 1200,
+  height: 630,
+  caption: `${siteConfig.name} · Estudio contable en ${siteConfig.city}`,
+};
+
 const jsonLd = {
   "@context": "https://schema.org",
-  "@type": "AccountingService",
+  // LocalBusiness ayuda a la tarjeta de “Empresas locales” en Rich Results.
+  "@type": ["AccountingService", "LocalBusiness", "ProfessionalService"],
   "@id": `${siteConfig.url}#organization`,
   name: siteConfig.legalName,
   legalName: siteConfig.legalName,
   description: siteConfig.description,
   url: siteConfig.url,
-  logo: siteConfig.logo,
-  image: siteConfig.socialImage,
+  logo: logoImage,
+  image: [socialImage, logoImage],
   inLanguage: siteConfig.language,
   areaServed: [
     {
@@ -97,8 +116,10 @@ const jsonLd = {
     "@type": "PostalAddress",
     addressLocality: siteConfig.city,
     addressCountry: "AR",
+    // TODO: streetAddress y postalCode cuando el cliente confirme la dirección.
   },
   knowsAbout: services.map((service) => service.name),
+  // TODO: priceRange solo si el cliente quiere publicarlo (ej. "$$"). Es opcional.
   ...(phone
     ? {
         telephone: `+${phone}`,
@@ -107,6 +128,7 @@ const jsonLd = {
           contactType: "customer service",
           telephone: `+${phone}`,
           availableLanguage: ["es"],
+          areaServed: "AR",
         },
       }
     : {}),
